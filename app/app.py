@@ -1,8 +1,9 @@
 import streamlit as st
 import requests
 
-st.title("Explainable Underwriting Risk Scoring")
+API_URL = "https://verisk-risk-scoring.onrender.com/score"
 
+st.title("Explainable Underwriting Risk Scoring")
 st.write("Enter policy details to assess underwriting risk.")
 
 policy = {
@@ -18,13 +19,15 @@ policy = {
 }
 
 if st.button("Score Policy"):
-    response = requests.post("http://127.0.0.1:8000/score", json=policy)
+    with st.spinner("Scoring policy..."):
+        response = requests.post(API_URL, json=policy)
 
     if response.status_code == 200:
         result = response.json()
+        st.success("Scoring complete")
+
         st.metric("Risk Score", result["risk_score"])
         st.metric("Claim Probability", result["claim_probability"])
         st.success(f"Decision: {result['decision']}")
     else:
-        st.error("API error")
-
+        st.error("Error connecting to scoring API")
